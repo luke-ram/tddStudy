@@ -9,5 +9,7 @@ public class UserRegister {
 
     public void register(String id, String pw, String email) {
         //구현전
+
+        throw new WeakPasswordException();
     }
 }
