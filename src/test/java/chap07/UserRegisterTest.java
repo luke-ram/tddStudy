@@ -13,10 +13,12 @@ public class UserRegisterTest {
     private StubWeakPasswordChecker stubPasswordChecker = new StubWeakPasswordChecker();
 
     private MemoryUserRepository fakeRepository = new MemoryUserRepository();
+    private SpyEmailNotifier spyEmailNotifier = new SpyEmailNotifier();
 
     @BeforeEach
     void setUp() {
-        userRegister = new UserRegister(stubPasswordChecker, fakeRepository);
+        userRegister = new UserRegister(stubPasswordChecker, fakeRepository, spyEmailNotifier);
+
     }
 
     @DisplayName("이미 같은 ID가 존재하면 가입 실패 =")
@@ -48,5 +50,14 @@ public class UserRegisterTest {
         assertThrows(WeakPasswordException.class, () -> {
             userRegister.register("id", "pw", "email");
         });
+    }
+
+    @DisplayName("가입하면 메일을 전송함")
+    @Test
+    void whenRegisterThenSendMail(){
+        userRegister.register("id","pw","email@email.com");
+
+        Assertions.assertTrue(spyEmailNotifier.isCalled());
+        assertEquals("email@email.com", spyEmailNotifier.getEmail());
     }
 }
