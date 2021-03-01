@@ -1,4 +1,4 @@
-package chap07;
+package chap07.user;
 
 public class User {
 

@@ -1,6 +1,6 @@
-package chap07;
+package chap07.validation;
 
-public class StubWeakPasswordChecker implements WeakPasswordChecker{
+public class StubWeakPasswordChecker implements WeakPasswordChecker {
 
     private boolean weak;
 

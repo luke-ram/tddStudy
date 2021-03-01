@@ -1,4 +1,4 @@
-package chap07;
+package chap07.notifier;
 
 public interface EmailNotifier {
     void sendRegisterEmail(String email);

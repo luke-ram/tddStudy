@@ -1,5 +1,11 @@
 package chap07;
 
+import chap07.user.MemoryUserRepository;
+import chap07.notifier.SpyEmailNotifier;
+import chap07.user.User;
+import chap07.validation.DuplicateExcetpion;
+import chap07.validation.StubWeakPasswordChecker;
+import chap07.validation.WeakPasswordException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

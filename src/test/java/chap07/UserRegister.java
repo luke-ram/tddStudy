@@ -1,5 +1,14 @@
 package chap07;
 
+import chap07.notifier.EmailNotifier;
+import chap07.notifier.SpyEmailNotifier;
+import chap07.user.MemoryUserRepository;
+import chap07.user.User;
+import chap07.user.UserRepository;
+import chap07.validation.DuplicateExcetpion;
+import chap07.validation.WeakPasswordChecker;
+import chap07.validation.WeakPasswordException;
+
 public class UserRegister {
     private WeakPasswordChecker passwordChecker;
     private UserRepository userRepository;
