@@ -1,14 +1,16 @@
 package chap01;
 
+import org.assertj.core.api.Assert;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import java.util.Arrays;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class StringTest {
-
     @Test
-    void substring(){
-        String str = "abcde";
-        assertEquals("cd", str.substring(2,4));
+    public void sample(){
+        Assertions.assertThat(Arrays.asList(1,2,3)).containsKey();
     }
 }
