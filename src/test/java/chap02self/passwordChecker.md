@@ -192,3 +192,89 @@ public class PasswordStrengthMeterTest {
     }
 }
 ```
+
+* 공백에 대한 테스트 추가
+```java
+public class PasswordStrengthMeterTest {
+    @Test
+    void emptyInput_Then_Invalid(){
+        assertStrength("", PasswordStrength.INVALID);
+    }
+}
+```
+
+* INVALID타입 추가
+```java
+public enum PasswordStrength {
+    STRONG, NORMAL, INVALID
+}
+```
+
+* meter 메서드 수정
+```java
+public class PasswordStrengthMeter {
+    public PasswordStrength meter(String s) {
+        
+        if (s.isEmpty()) return PasswordStrength.INVALID;
+
+        if (s.length() < 8) {
+            return PasswordStrength.NORMAL;
+        }
+
+        boolean containsNum = meetsContainingNumberCriteria(s);
+
+        if (!containsNum) return PasswordStrength.NORMAL;
+
+        return PasswordStrength.STRONG;
+    }
+
+    private boolean meetsContainingNumberCriteria(String s) {
+        for (char ch : s.toCharArray()) {
+            if (ch >= '0' && ch <= '9') {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+```
+
+
+* null에 대한 테스트 추가
+```java
+public class PasswordStrengthMeterTest {
+    @Test
+    void nullInput_Then_Invalid(){
+        assertStrength(null, PasswordStrength.INVALID);
+    }
+}
+```
+
+* meter 메서드 수정
+```java
+public class PasswordStrengthMeter {
+    public PasswordStrength meter(String s) {
+        
+        if (s == null || s.isEmpty()) return PasswordStrength.INVALID;
+
+        if (s.length() < 8) {
+            return PasswordStrength.NORMAL;
+        }
+
+        boolean containsNum = meetsContainingNumberCriteria(s);
+
+        if (!containsNum) return PasswordStrength.NORMAL;
+
+        return PasswordStrength.STRONG;
+    }
+
+    private boolean meetsContainingNumberCriteria(String s) {
+        for (char ch : s.toCharArray()) {
+            if (ch >= '0' && ch <= '9') {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+```
