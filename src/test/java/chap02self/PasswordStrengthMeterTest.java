@@ -22,16 +22,21 @@ public class PasswordStrengthMeterTest {
     @Test
     void meetsOtherCriteria_except_for_number_Then_Normal() {
         assertStrength("ab!@ABqwer", PasswordStrength.NORMAL);
-
     }
 
     @Test
-    void nullInput_Then_Invalid(){
+    void nullInput_Then_Invalid() {
         assertStrength(null, PasswordStrength.INVALID);
     }
+
     @Test
-    void emptyInput_Then_Invalid(){
+    void emptyInput_Then_Invalid() {
         assertStrength("", PasswordStrength.INVALID);
+    }
+
+    @Test
+    void meetsOtherCriteria_except_for_Uppercase_then_Normal() {
+        assertStrength("ab12!@df", PasswordStrength.NORMAL);
     }
 
     private void assertStrength(String s, PasswordStrength normal) {
