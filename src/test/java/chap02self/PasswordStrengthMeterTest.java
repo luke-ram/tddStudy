@@ -37,6 +37,12 @@ public class PasswordStrengthMeterTest {
     @Test
     void meetsOtherCriteria_except_for_Uppercase_then_Normal() {
         assertStrength("ab12!@df", PasswordStrength.NORMAL);
+
+    }
+
+    @Test
+    void meetsOnlyLengthCriteria_Then_Weak() {
+        assertStrength("abcdefghi", PasswordStrength.WEAK);
     }
 
     private void assertStrength(String s, PasswordStrength normal) {

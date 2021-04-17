@@ -8,15 +8,23 @@ public class PasswordStrengthMeter {
 
         if (s == null || s.isEmpty()) return PasswordStrength.INVALID;
 
-        if (s.length() < 8) {
-            return PasswordStrength.NORMAL;
+        int metCounts =0;
+        if (s.length() >= 8) {
+            metCounts++;
         }
 
         boolean containsNum = meetsContainingNumberCriteria(s);
-        if (!containsNum) return PasswordStrength.NORMAL;
+        if (containsNum){
+            metCounts++;
+        }
 
         boolean containsUpperCase = isContainsUpperCase(s);
-        if(!containsUpperCase) return PasswordStrength.NORMAL;
+        if(containsUpperCase){
+            metCounts ++;
+        }
+
+        if (metCounts <= 1) return PasswordStrength.WEAK;
+        if (metCounts == 2) return PasswordStrength.NORMAL;
 
         return PasswordStrength.STRONG;
     }
