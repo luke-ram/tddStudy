@@ -375,6 +375,9 @@ public enum PasswordStrength {
     STRONG, INVALID, WEAK, NORMAL
 }
 ```
+* 실행시 에러 발생 이 결과는 NORMAL이 리턴되며 실패하는데, 문자열 길이는 통과했지만, 숫자를 포함하고 있지 않아서 발생한 오류
+* 길이는 만족했다는 것을 뒤쪽에서 확인할 수 있어야함
+
 
 * method 수정
 ```java
@@ -383,21 +386,204 @@ public class PasswordStrengthMeter {
     public PasswordStrength meter(String s) {
 
         if (s == null || s.isEmpty()) return PasswordStrength.INVALID;
+        
+        boolean containsNum = meetsContainingNumberCriteria(s);
+        boolean containsUpperCase = isContainsUpperCase(s);
+        boolean lengthEnough = s.length() >= 8;
 
-        int metCounts =0;
-        if (s.length() >= 8) {
-            metCounts++;
+        if(lengthEnough && !containsNum && ! containsUpperCase)
+            return PasswordStrength.WEAK;
+
+        if (!lengthEnough) {
+            return PasswordStrength.NORMAL;
         }
+        if (!containsNum) return PasswordStrength.NORMAL;
+        if(!containsUpperCase) return PasswordStrength.NORMAL;
+        return PasswordStrength.STRONG;
+    }
+    
+}
+```
+
+* 다음 케이스 추가
+```java
+public class PasswordStrengthMeterTest {
+    @Test
+    void meetsOnlyNumCriteria_Then_Weak(){
+        assertStrength("12345", PasswordStrength.WEAK);
+    }
+}
+```
+
+* 메서드 수정
+```java
+public class PasswordStrengthMeter {
+
+    public PasswordStrength meter(String s) {
+    
+        if (s == null || s.isEmpty()) return PasswordStrength.INVALID;
 
         boolean containsNum = meetsContainingNumberCriteria(s);
-        if (containsNum){
-            metCounts++;
-        }
-
         boolean containsUpperCase = isContainsUpperCase(s);
-        if(containsUpperCase){
-            metCounts ++;
+        boolean lengthEnough = s.length() >= 8;
+
+        if(lengthEnough && !containsNum && ! containsUpperCase)
+            return PasswordStrength.WEAK;
+
+        if(!lengthEnough && containsNum && !containsUpperCase)
+            return PasswordStrength.WEAK;
+
+        if (!lengthEnough) {
+            return PasswordStrength.NORMAL;
         }
+        if (!containsNum) return PasswordStrength.NORMAL;
+        if(!containsUpperCase) return PasswordStrength.NORMAL;
+
+        return PasswordStrength.STRONG;
+    }
+}
+```
+
+* 다음케이스 추가(대문자만 있는 케이스)
+```java
+public class PasswordStrengthMeterTest {
+    @Test
+    void meetsOnlyUpperCriteria_Then_Weak(){
+        assertStrength("ABCDEF", PasswordStrength.WEAK);
+    }
+}
+```
+
+* 메서드 수정
+```java
+public class PasswordStrengthMeter {
+
+    public PasswordStrength meter(String s) {
+
+        if (s == null || s.isEmpty()) return PasswordStrength.INVALID;
+
+        boolean containsNum = meetsContainingNumberCriteria(s);
+        boolean containsUpperCase = isContainsUpperCase(s);
+        boolean lengthEnough = s.length() >= 8;
+
+        if (lengthEnough && !containsNum && !containsUpperCase)
+            return PasswordStrength.WEAK;
+
+        if (!lengthEnough && containsNum && !containsUpperCase)
+            return PasswordStrength.WEAK;
+
+        if (!lengthEnough && !containsNum && containsUpperCase)
+            return PasswordStrength.WEAK;
+
+        if (!lengthEnough) {
+            return PasswordStrength.NORMAL;
+        }
+        if (!containsNum) return PasswordStrength.NORMAL;
+        if (!containsUpperCase) return PasswordStrength.NORMAL;
+
+        return PasswordStrength.STRONG;
+    }
+}
+```
+
+* 1차 리팩토링
+```java
+public class PasswordStrengthMeter {
+
+    public PasswordStrength meter(String s) {
+
+        if (s == null || s.isEmpty()) return PasswordStrength.INVALID;
+
+        boolean containsNum = meetsContainingNumberCriteria(s);
+        boolean containsUpperCase = isContainsUpperCase(s);
+        boolean lengthEnough = s.length() >= 8;
+
+        int metCounts = 0;
+        if (lengthEnough) metCounts++;
+        if (containsNum) metCounts++;
+        if (containsUpperCase) metCounts++;
+        if (metCounts == 1) return PasswordStrength.WEAK;
+       
+        if (!lengthEnough) {
+            return PasswordStrength.NORMAL;
+        }
+        if (!containsNum) return PasswordStrength.NORMAL;
+        if (!containsUpperCase) return PasswordStrength.NORMAL;
+
+        return PasswordStrength.STRONG;
+    }
+}
+```
+
+* 2차 리팩토링
+```java
+public class PasswordStrengthMeter {
+
+    public PasswordStrength meter(String s) {
+
+        if (s == null || s.isEmpty()) return PasswordStrength.INVALID;
+
+        boolean containsNum = meetsContainingNumberCriteria(s);
+        boolean containsUpperCase = isContainsUpperCase(s);
+        boolean lengthEnough = s.length() >= 8;
+
+        int metCounts = 0;
+        if (lengthEnough) metCounts++;
+        if (containsNum) metCounts++;
+        if (containsUpperCase) metCounts++;
+
+        if (metCounts == 1) return PasswordStrength.WEAK;
+        if(metCounts ==2) return PasswordStrength.NORMAL;
+        
+        return PasswordStrength.STRONG;
+    }
+}
+```
+
+* 아무것도 충족하지 않은 경우 테스트케이스 추가
+```java
+public class PasswordStrengthMeterTest {
+    @Test
+    void meetNoCritera_Then_Weak(){
+        assertStrength("abc", PasswordStrength.WEAK);
+    }
+}
+```
+
+* 메소드 수정
+```java
+public class PasswordStrengthMeter {
+
+    public PasswordStrength meter(String s) {
+
+        if (s == null || s.isEmpty()) return PasswordStrength.INVALID;
+
+        boolean containsNum = meetsContainingNumberCriteria(s);
+        boolean containsUpperCase = isContainsUpperCase(s);
+        boolean lengthEnough = s.length() >= 8;
+
+        int metCounts = 0;
+        if (lengthEnough) metCounts++;
+        if (containsNum) metCounts++;
+        if (containsUpperCase) metCounts++;
+
+        if (metCounts <= 1) return PasswordStrength.WEAK;
+        if(metCounts ==2) return PasswordStrength.NORMAL;
+        
+        return PasswordStrength.STRONG;
+    }
+}
+```
+
+* 가독성 리팩토링
+```java
+public class PasswordStrengthMeter {
+
+    public PasswordStrength meter(String s) {
+
+        if (s == null || s.isEmpty()) return PasswordStrength.INVALID;
+
+        int metCounts = getMetCriteriaCounts(s);
 
         if (metCounts <= 1) return PasswordStrength.WEAK;
         if (metCounts == 2) return PasswordStrength.NORMAL;
@@ -405,23 +591,13 @@ public class PasswordStrengthMeter {
         return PasswordStrength.STRONG;
     }
 
-    private boolean isContainsUpperCase(String s) {
-        boolean containsUpperCase = false;
-        for (char ch : s.toCharArray()) {
-            if (Character.isUpperCase(ch)) {
-                containsUpperCase =  true;
-            }
-        }
-        return containsUpperCase;
-    }
+    private int getMetCriteriaCounts(String password) {
 
-    private boolean meetsContainingNumberCriteria(String s) {
-        for (char ch : s.toCharArray()) {
-            if (ch >= '0' && ch <= '9') {
-                return true;
-            }
-        }
-        return false;
+        int metCounts = 0;
+        if (password.length() >= 8) metCounts++;
+        if (meetsContainingNumberCriteria(password)) metCounts++;
+        if (isContainsUpperCase(password)) metCounts++;
+        return metCounts;
     }
 }
 ```

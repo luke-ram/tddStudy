@@ -37,7 +37,6 @@ public class PasswordStrengthMeterTest {
     @Test
     void meetsOtherCriteria_except_for_Uppercase_then_Normal() {
         assertStrength("ab12!@df", PasswordStrength.NORMAL);
-
     }
 
     @Test
@@ -45,8 +44,29 @@ public class PasswordStrengthMeterTest {
         assertStrength("abcdefghi", PasswordStrength.WEAK);
     }
 
+    @Test
+    void meetsOnlyNumCriteria_Then_Weak(){
+        assertStrength("12345", PasswordStrength.WEAK);
+    }
+
+    @Test
+    void meetsOnlyUpperCriteria_Then_Weak(){
+        assertStrength("ABCDEF", PasswordStrength.WEAK);
+    }
+
+    @Test
+    void meetNoCritera_Then_Weak(){
+        assertStrength("abc", PasswordStrength.WEAK);
+    }
+
     private void assertStrength(String s, PasswordStrength normal) {
         PasswordStrength result = meter.meter(s);
         Assertions.assertEquals(normal, result);
     }
+
+    @Test
+    public void assertJTest() {
+        Assertions.assertEquals("a", "a");
+    }
+
 }
