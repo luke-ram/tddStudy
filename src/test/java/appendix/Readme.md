@@ -3,6 +3,14 @@
 - 모의객체 생성하는 방법
 
 * 기본구조 셋팅
+```xml
+<dependency>
+    <groupId>org.mockito</groupId>
+    <artifactId>mockito-core</artifactId>
+    <version>3.6.28</version>
+    <scope>test</scope>
+</dependency>
+```
 ```java
 public interface GameNumGen {
 
