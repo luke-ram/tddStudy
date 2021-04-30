@@ -2,37 +2,65 @@
 
 - 모의객체 생성하는 방법
 
+* 기본구조 셋팅
 ```java
-    @Test
-    void mockTest(){
-            GameNumGen genMock=mock(GameNumGen.class);
-    }
-```
+public interface GameNumGen {
 
+    String generate(GameLevel level);
+}
+
+public enum GameLevel {
+    EASY,HARD
+}
+```
+* 테스트 해보기
 - 스텁 생성
 ```java
-    GameNumGen genMock = mock(GameNum.class);
-    given(genMock.generate(GameLevel.EASY)).willReturn("123");
+public class GameGenMockTest {
+    @Test
+    void mockTest() {
+        GameNumGen genMock = mock(GameNumGen.class);
+        given(genMock.generate(GameLevel.EASY)).willReturn("easy");
+
+        String generate = genMock.generate(GameLevel.EASY);
+        Assertions.assertEquals("easy", generate);
+    }
+}
 ```
 
 - 지정하는 값을 리턴하는 대신 익셉션을 발생시킬시
 ```java
-   given(genMock.generate(GameLevel.EASY)).willThrow(IllegalArgumentException());
-   assertThrows(
-           IllegalArgumentExcetion.class,() -> genMock.generate(null)
-    );
+public class GameGenMockTest {
+    
+    @Test
+    void mockException() {
+        GameNumGen genMock = mock(GameNumGen.class);
+        given(genMock.generate(GameLevel.EASY)).willThrow(new IllegalArgumentException());
+        assertThrows(
+                IllegalArgumentException.class, () -> genMock.generate(GameLevel.EASY)
+        );
+    }
+}
 ```
+
+
+
 
 - 리턴 타입이 void인 메서드에 대해 익셉션 발생시 BDDMockito.willThrow()메서드로 시작
 ```java
-    List<String> mockList = mock(List.class)
-    willThrow(UnsupportedOperationException.class)
-    .given(mockList)
-    .clear();
+public class GameGenMockTest {
+    
+    @Test
+    void returnTypeVoidTest() {
+        List<String> mockList = mock(List.class);
+        willThrow(UnsupportedOperationException.class)
+                .given(mockList).clear();
+        assertThrows(
+                UnsupportedOperationException.class, () -> mockList.clear()
+        );
+    }
+}
 
-    assertThrows(
-        UnsupportedOperation.class,() -> mockList.clear()
-    )
 ```
 1. BDDMockito.willThrow()메소드는 발생할 익셉션 타입이나 익셉션 객체를 인자로 받는다. <br>
 2. given()메서드는 모의 객체를 전달받는다. 모의 객체의 메서드 실행이 아닌 모의 객체임에 유의할것<br>
@@ -48,14 +76,19 @@
 > String이나, List와 같은 참조타입 -> null
 
 ```java
-    GameNumGen genMock = mock(GameNumGen.class);
-    given(genMock.generate(any())).willReturn("456");
-    
-    String num = genMock.generate(GameLevel.EASY);
-    assertEquals("456", num);
+public class GameGenMockTest {
+    @Test
+    void anyTypeTest(){
+        GameNumGen genMock = mock(GameNumGen.class);
+        given(genMock.generate(any())).willReturn("456");
 
-    String num2 = genMock.generate(GameLevel.NORMAL);
-    assertEquals("456", num2);
+        String num = genMock.generate(GameLevel.EASY);
+        assertEquals("456", num);
+
+        String num2 = genMock.generate(GameLevel.NORMAL);
+        assertEquals("456", num2);
+    }
+}
 ```
 
 - 종류
@@ -71,8 +104,14 @@
 
 - 임의의 값과 일치하는 인자와 정확하게 일치하는 인자를 함께 사용할때 아래와 같이 사용해야함
 ```java
-    given(MockList.set(anyInt()), "123")).willReturn("456"); // 안됨
-    given(MockList.set(anyInt()), eq("123"))).willReturn("456"); // 가능
+public class GameGenMockTest {
+    @Test
+    void matchParameterType() {
+        List<String> mockList = mock(List.class);
+        given(mockList.set(anyInt(), "123")).willReturn("456"); // 안됨
+        given(mockList.set(anyInt(), eq("123"))).willReturn("456"); // 가능
+    }
+}
 ```
 
 > ArgumentMatchers의 anyInt()나 any()등의 메서드는 내부적으로 인자의 일치 여부를 판단하기 위해 ArgumentMatcher를 등록한다.
@@ -89,15 +128,31 @@
     - atMost(int): 최대 지정한 횟수만큼 호출
     
 ```java
-    GameNumGen genMock = mock(GameNumGen.class);
-    Game game = new Game(genMock);
-    game.init(GameLevel.EASY);
-    
-    then(genMock).should().generate(GameLevel.EASY);
-    //정확한 값이 아니라 메서드가 불렸는지 여부가 중요할때
-    then(genMock).should().generate(any());
-    //정확하게 한 번만 호출된 것을 검증하고 싶을때
-    then(genMock).should(only()).generate(any());
+public class GameGenMockTest {
+    @Test
+    void actionTest(){
+        GameNumGen genMock = mock(GameNumGen.class);
+        Game game = new Game(genMock);
+        game.init(GameLevel.EASY);
+
+        then(genMock).should().generate(GameLevel.EASY);
+        //정확한 값이 아니라 메서드가 불렸는지 여부가 중요할때
+        then(genMock).should().generate(any());
+        //정확하게 한 번만 호출된 것을 검증하고 싶을때
+        then(genMock).should(only()).generate(any());
+    }
+}
+public class Game {
+
+    private GameNumGen gameNumGen;
+    public Game(GameNumGen gameNumGen) {
+        this.gameNumGen =  gameNumGen;
+    }
+
+    public void init(GameLevel easy) {
+        this.gameNumGen.generate(easy);
+    }
+}
 ```
 1. should() : 다음에 실제로 불려야 할 메서드를 지정한다. <br>
    (ex) generate메서드가 호출되어야 한다.
